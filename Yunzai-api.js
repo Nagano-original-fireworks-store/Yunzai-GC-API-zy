@@ -93,7 +93,7 @@ export class api extends plugin {
           const token = result.data;
           config[QQ] = { UID: UID, token: token };
           fs.writeFileSync('./resources/gm/config.yaml', yaml.stringify(config), 'utf8');
-          await this.reply(`消息token获取成功\n请使用“/验证码 1234”进行连接\n1234为游戏里面的验证码`);
+          await this.reply(`token获取成功\n请使用“/验证码 1234”进行连接\n1234为游戏里面的验证码`);
         } else {
           await this.reply('token获取失败，请检查你的UID是否正确或者短时间获取次数上限');
         }
