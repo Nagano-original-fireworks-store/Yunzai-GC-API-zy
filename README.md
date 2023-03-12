@@ -48,8 +48,6 @@ key验证成功
 ```
 
 ## server.yaml
-目前手动到`resources\api`目录下创建\server.yaml，后续解决此问题。
-
 需要注意格式，双引号后面需要带空格。
 ```
 server_address: https://35.tanga.cc:35/opencommand/api
