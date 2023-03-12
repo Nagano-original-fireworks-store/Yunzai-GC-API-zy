@@ -1,6 +1,9 @@
 # Yunzai-GC-API
  使用Yunzai在你的QQ群里面执行gc指令
 
+ 使用[jie65535-opencommand](https://github.com/jie65535/gc-opencommand-plugin)的API。
+ 需要在服务器先安装此插件。
+
 ## 使用说明
 把Yunzai-api.js放到`plugins\example`里面
 ```
