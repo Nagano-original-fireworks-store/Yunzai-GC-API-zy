@@ -65,12 +65,6 @@ server_address: https://35.tanga.cc:35/opencommand/api
 config.yaml
 
 `
-<[GC-API][gcapi]
- [YzBot][14:31:11.795][ERRO] Error: ENOENT: no such file or directory, open './resources/gm/config.yaml'
- at Object.openSync (node:fs:585:3)
- at Object.readFileSync (node:fs:453:35)
- at api.gcapi (file:///D:/Game/Yunzai-Bot/plugins/example/Yunzai-api.js?1678601426355:141:36)
- at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
- at async PluginsLoader.deal (file:///D:/Game/Yunzai-Bot/lib/plugins/loader.js:251:52)>
+暂无bug捏
 `
 
