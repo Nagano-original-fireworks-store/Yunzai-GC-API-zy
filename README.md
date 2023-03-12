@@ -1,8 +1,18 @@
 # Yunzai-GC-API
  使用Yunzai在你的QQ群里面执行gc指令
 
+## 使用说明
+把Yunzai-api.js放到`plugins\example`里面
+```
+resources\api\config.yaml  储存QQ，UID，token
+resources\api\server.yaml  储存server的api
+```
+每次启动之前，会检测这两个文件是否存在，不存在则进行创建~
+
+
 ## 基本指令
 ```
+
 /ping
 /服务器状态
 /在线人数
