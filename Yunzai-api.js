@@ -374,6 +374,7 @@ export class api extends plugin {
   // 群友要的小彩蛋~
   async kfc(e) {
     await this.reply('肯德基疯狂星期V我50！谢谢。', true)
+    await this.e.reply(segment.image(`./resources/api/kfc.png`))
   }
 }
 
