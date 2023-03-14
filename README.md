@@ -16,10 +16,12 @@ GitHub:
 * [Yunzai-V3-OICQ：](https://github.com/Le-niao/Yunzai-Bot)（不推荐使用）乐神原版，目前已经暂停维护
 
 ## 使用说明
+[点击下载 Yunzai-api](https://github.com/Zyy-boop/Yunzai-GC-API/releases/download/1.0/Yunzai-api.js)
+
 把Yunzai-api.js放到`plugins\example`里面
 
-下载链接：
 ```
+结构说明
 resources\api\config.yaml  储存QQ，UID，token
 resources\api\server.yaml  储存server的api
 ```
