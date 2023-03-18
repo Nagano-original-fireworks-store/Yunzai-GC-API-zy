@@ -1,5 +1,4 @@
 # Yunzai-GC-API
-<<<<<<< Updated upstream
  让Yunzai运行GC的指令！
 =======
  使用Yunzai在你的QQ群里面执行gc指令
@@ -19,7 +18,7 @@ GitHub:
 * [Yunzai-V3-OICQ：](https://github.com/Le-niao/Yunzai-Bot)（不推荐使用）乐神原版，目前已经暂停维护
 
 ## 使用说明
-[点击下载 Yunzai-api](https://github.com/Zyy-boop/Yunzai-GC-API/releases/download/1.1/Yunzai-api.js)
+[点击下载 Yunzai-api](https://github.com/Zyy-boop/Yunzai-GC-API/releases/download/1.0/Yunzai-api.js)
 
 把Yunzai-api.js放到`plugins\example`里面
 
