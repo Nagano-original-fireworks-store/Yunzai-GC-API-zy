@@ -65,7 +65,11 @@ if (!fs.existsSync('./resources/api/data.yaml')) {
 if (!fs.existsSync('./resources/api/command.yaml')) {
   fs.writeFileSync('./resources/api/command.yaml', yaml.stringify(fs_command))
 }
+const config = yaml.parse(fs.readFileSync('./resources/api/config.yaml', 'utf8'))
+const data = yaml.parse(fs.readFileSync('./resources/api/data.yaml', 'utf8'));
+const command = yaml.parse(fs.readFileSync('./resources/api/command.yaml', 'utf8'));
 const server = yaml.parse(fs.readFileSync('./resources/api/server.yaml', 'utf8'))
+
 export class api extends plugin {
   constructor() {
     super({
@@ -90,33 +94,76 @@ export class api extends plugin {
           reg: '^/(删除管理|删除管理员)',
           fnc: 'del',
         },
-        /*{
-          reg: '^/(查看管理员|管理员列表|查看管理|查看服务器|查看服务器地址|服务器地址|查看数组别名|查看单别名|数组别名|单别名)',
+        {
+          reg: '^/(查看管理员|管理员列表|查看管理管理员|管理员|查看服务器|服务器|查看服务器地址|服务器地址|查看多别名|查看单别名|多别名|单别名)',
           fnc: 'check',
-        },*/
+        },
         {
           reg: '^/(ping|在线人数|状态|服务器状态|绑定UID|绑定|绑定uid|连接|链接|验证码)',
           fnc: 'base',
         },
         {
-          reg: '^/(.*)$',
-          fnc: 'command',
+          reg: '^/(添加单别名)',
+          fnc: "array"
+        },
+        {
+          reg: '^/(添加多别名)',
+          fnc: "arrays"
         },
         {
           reg: '(.*)(kfc|KFC)(.*)',
           fnc: 'kfc'
+        },
+        {
+          reg: '^/(.*)$',
+          fnc: 'command',
         }
       ]
 
     })
   }
+  async array(e) {
+    if (!this.e.isMaster) return this.reply('你不是主人，无权进行此操作！', true)
+    const msg = e.msg.split(' ');
+    if (msg.length !== 2) {
+      return this.reply(`格式错误，请输入正确的格式：\n${msg[0]} 别名: 命令`);
+    }
+    const [alias, command] = msg[1].split(/[:：]/).map(str => str.trim());
+    if (!alias || !command) {
+      return this.reply(`格式错误，请输入正确的格式：\n${msg[0]} 别名: 命令`);
+    }
+    const data = yaml.parse(fs.readFileSync('./resources/api/data.yaml', 'utf8'));
+    data[alias] = command;
+    fs.writeFileSync('./resources/api/data.yaml', yaml.stringify(data));
+    await this.reply(`已成功添加别名：${alias}`);
+  }
+
+  async arrays(e) {
+    if (!this.e.isMaster) return this.reply('你不是主人，无权进行此操作！', true)
+
+    const msg = e.msg.split('\r');
+    console.log(msg);
+    if (msg.length < 3) {
+      return this.reply(`格式错误，请输入正确的格式：\n${msg[0]} 止语\n[test 1]\n[test 2]\n...`);
+    }
+    const keyword = msg[1].trim();
+    const contents = msg.slice(2).map(str => str.trim());
+    if (!keyword || !contents || contents.length < 1) {
+      return this.reply(`格式错误，请输入正确的格式：\n${msg[0]} 止语\n[test 1]\n[test 2]\n...`);
+    }
+    const data = yaml.parse(fs.readFileSync('./resources/api/command.yaml', 'utf8')) || {};
+    data[keyword] = contents;
+    fs.writeFileSync('./resources/api/command.yaml', yaml.stringify(data));
+    await this.reply(`已成功添加别名：${keyword}`);
+  }
+
+
 
   async server(e) {
-    if (!this.e.isMaster) return this.reply('你没有添加server的权限', true)
+    if (!this.e.isMaster) return this.reply('你不是主人，无权进行此操作！', true)
     this.setContext('monitor')
     await this.reply('请发送server\n格式为：http(s)://127.0.0.1:443', false)
   }
-
   monitor() {
     const addressPattern = /^(https?:\/\/)[\w\-]+(\.[\w\-]+)+(:\d{1,5})?$/
     const newAddress = this.e.message[0].text
@@ -135,7 +182,7 @@ export class api extends plugin {
 
 
   async token() {
-    if (!this.e.isMaster) return this.reply('你没有添加token的权限', true)
+    if (!this.e.isMaster) return this.reply('你不是主人，无权进行此操作！', true)
     this.setContext('monitora')
     await this.reply('请发送token', false)
   }
@@ -149,7 +196,7 @@ export class api extends plugin {
   }
 
   async admin() {
-    if (!this.e.isMaster) return this.reply('你没有添加服务器管理员的权限', true)
+    if (!this.e.isMaster) return this.reply('你不是主人，无权进行此操作！', true)
     this.setContext('monitorb')
     await this.reply('请发送新增管理员的QQ', false)
   }
@@ -162,12 +209,12 @@ export class api extends plugin {
     server.server_admin = updatedAdminList
     const yamlString = yaml.stringify(server)
     fs.writeFileSync('./resources/api/server.yaml', yamlString)
-    this.reply(`管理员${newQQ} 已添加！可添加多个管理员!`)
+    this.reply(`管理员${newQQ} 已添加！可添加多个管理员!`, true)
     this.finish('monitorb')
   }
 
   async del() {
-    if (!this.e.isMaster) return this.reply('你没有删除服务器管理员的权限', true)
+    if (!this.e.isMaster) return this.reply('你不是主人，无权进行此操作！', true)
     this.setContext('monitorc')
     await this.reply('请发送要删除的管理员QQ', false)
   }
@@ -190,15 +237,31 @@ export class api extends plugin {
     this.reply(`管理员 ${adminToRemove} 已被移除！`)
     this.finish('monitorc')
   }
-/*
-先摆了，不要狗叫！
+
   async check(e) {
-    if (msg[0] === '/查看管理员' || msg[0] === '/查看管理' || msg[0] === '/查看管理员列表')
-      if (msg[0] === '/查看服务器' || msg[0] === '/查看服务器地址' || msg[0] === '/服务器地址')
-        if (msg[0] === '/查看数组别名' || msg[0] === '/数组别名')
-          if (msg[0] === '/查看单别名' || msg[0] === '/单别名')
+    const msg = e.msg.split(' ')
+    if (msg[0] === '/查看管理员' || msg[0] === '/查看管理' || msg[0] === '/查看管理员列表' || msg[0] === '/管理员') {
+      const adminList = server.server_admin;
+      await this.reply(`管理员列表：\n${adminList.join('\n')}`);
+    }
+    if (msg[0] === '/查看服务器' || msg[0] === '/查看服务器地址' || msg[0] === '/服务器地址' || msg[0] === '/服务器') {
+      const serverAddress = server.server_address;
+      await this.reply(`服务器地址：\n${serverAddress.join('\n ')}`);
+    }
+    if (msg[0] === '/查看多别名' || msg[0] === '/多别名') {
+      const arrayAlias = Object.keys(command);
+      const arrayAliasWithNumber = arrayAlias.map((alias, index) => `${(index + 1).toString().padStart(2, '')}. ${alias}`);
+      const forwardMsg = await this.makeForwardMsg('多别名列表', `以下为详细的多别名列表\n多别名可以一次执行多条指令，但是缺点为不能组合指令。\n\n${arrayAliasWithNumber.join('\n')}`);
+      await this.reply(forwardMsg);
+    }
+
+    if (msg[0] === '/查看单别名' || msg[0] === '/单别名') {
+      const singleAlias = Object.entries(data).map(([key, value], index) => `${(index + 1).toString().padStart(2, ' ')}. "${key}": "${value}"`);
+      const forwardMsg = await this.makeForwardMsg('单别名列表', `以下为详细的单别名列表\n单别名可以自由组合别名，缺点是每次只能发一条，你可以发挥你的想象力~\n\n${singleAlias.join('\n')}`);
+      await this.reply(forwardMsg);
+    }
   }
-  */
+
   async base(e) {
     let UID
     let config = yaml.parse(fs.readFileSync('./resources/api/config.yaml', 'utf8'))
@@ -322,7 +385,6 @@ export class api extends plugin {
 
   async command(e) {
     const userId = e.user_id
-    const config = yaml.parse(fs.readFileSync('./resources/api/config.yaml', 'utf8'))
     const url = server.server_address
     const Msg = e.raw_message.trim().substring(1).split(' ')
     const dataconfig = yaml.parse(fs.readFileSync('./resources/api/data.yaml', 'utf8'))
@@ -364,7 +426,7 @@ export class api extends plugin {
       return
     }
 
-    if (typeof newMsg === 'string') {
+    if (typeof newMsg[0] === 'string') {
       const options = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -377,10 +439,12 @@ export class api extends plugin {
       }
       const response = await fetch(url, options)
       const responseBody = await response.json();
-      const data = responseBody.data || 'OK';
+      const retcode = responseBody.retcode;
+      const data = retcode === 200 ? responseBody.data || 'OK' : `${retcode}，token错误`;
       await this.reply(`发送指令：${newMsg}\n执行结果：${data}`);
-      return
+      return;
     } else {
+
       // 通过 Promise.all() 方法同时执行多个 POST 请求
       const promiseArr = newMsg.map(msgs => {
         const subPromiseArr = msgs.map(msg => {
@@ -413,21 +477,61 @@ export class api extends plugin {
           });
           return Promise.all(responseData.flat());
         })
-        .then(data => {
+
+        .then(async data => {
           const msgs = newMsg.flat();
-          const statusArr = data.map(obj => obj.data || 'OK');
-          const msgAndStatusArr = msgs.map((msg, i) => `发送指令：${msg}\n执行结果：${statusArr[i]}`);
+          const msgAndStatusArr = msgs.map((msg, i) => {
+            const obj = data[i];
+            if (obj.retcode === 200) {
+              return `发送指令：${msg}\n执行结果：${obj.data || 'OK'}`;
+            } else {
+              return `发送指令：${msg}\n执行结果：${obj.retcode}，token不正确`;
+            }
+          });
           const result = msgAndStatusArr.join('\n\n');
-          try {
-            this.reply(result);
-          } catch (error) {
-            console.error(error);
-          }
+
+          const forwardMsg = await this.makeForwardMsg(`指令执行结果`, result); 
+          await this.reply(forwardMsg); 
         })
-        .catch(error => {
-          console.error(error);
-        });
     }
+
+
+
+  }
+
+  async makeForwardMsg(title, msg) {
+    let nickname = Bot.nickname
+    if (this.e.isGroup) {
+      let info = await Bot.getGroupMemberInfo(this.e.group_id, Bot.uin)
+      nickname = info.card ?? info.nickname
+    }
+    let userInfo = {
+      user_id: Bot.uin,
+      nickname
+    }
+
+    let forwardMsg = [
+      {
+        ...userInfo,
+        message: title
+      },
+      {
+        ...userInfo,
+        message: msg
+      }
+    ]
+
+    if (this.e.isGroup) {
+      forwardMsg = await this.e.group.makeForwardMsg(forwardMsg)
+    } else {
+      forwardMsg = await this.e.friend.makeForwardMsg(forwardMsg)
+    }
+    forwardMsg.data = forwardMsg.data
+      .replace(/\n/g, '')
+      .replace(/<title color="#777777" size="26">(.+?)<\/title>/g, '___')
+      .replace(/___+/, `<title color="#777777" size="26">${title}</title>`)
+
+    return forwardMsg
   }
 
   // 群友要的小彩蛋~
@@ -436,4 +540,3 @@ export class api extends plugin {
     await this.e.reply(segment.image(`./resources/api/kfc.png`))
   }
 }
-
